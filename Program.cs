@@ -13,7 +13,6 @@ namespace Classicmodels
 		public string firstname { get; set; }
 		public string lastname { get; set; }
 		public string email { get; set; }
-
 	}
 
 	class ProductsTable
@@ -47,7 +46,7 @@ namespace Classicmodels
 			string query = "SELECT * FROM employees";
 			MySqlCommand command = new MySqlCommand(query, conn);
 			MySqlDataReader reader = command.ExecuteReader();
-
+			Console.ForegroundColor = ConsoleColor.Cyan;
 			while (reader.Read())
 			{
 				var employee = new EmployeesTable
@@ -61,11 +60,11 @@ namespace Classicmodels
 			}
 			reader.Close();
 
+			Console.WriteLine("\nEmployees Table:");
 			foreach (var item in employees)
 			{
-				Console.WriteLine($"{item.id} | {item.firstname} | {item.lastname} | {item.email}");
+				Console.WriteLine($"\t{item.id} | {item.firstname} | {item.lastname} | {item.email}");
 			}
-
 		}
 
 		static void Products()
@@ -89,11 +88,13 @@ namespace Classicmodels
 			reader.Close();
 
 			//1. hány darab termék
-			Console.WriteLine("1. feladat");
-			Console.WriteLine($"Összesen {products.Count} darab termék van.");
+			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.WriteLine("\n1. feladat");
+			Console.WriteLine($"\tÖsszesen {products.Count} darab termék van.");
 
 			//2. típusonként hány darab
-			Console.WriteLine("2. feladat");
+			Console.ForegroundColor = ConsoleColor.Blue;
+			Console.WriteLine("\n2. feladat");
 			var darab = from sor in products
 						group sor by sor.type;
 
@@ -105,7 +106,8 @@ namespace Classicmodels
 			}
 
 			//3. csak a megadott tipusúakat írja
-			Console.WriteLine("3. feladat");
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("\n3. feladat");
 			string tipusneve = "Planes";
 
 			var tipus = from p in products
@@ -118,16 +120,17 @@ namespace Classicmodels
 			{
 				foreach (var item in tipus2)
 				{
-					Console.WriteLine(item.name + " " + item.price + " " + item.type);
+					Console.WriteLine($"\t{item.name} | {item.price:#.00} | {item.type}");
 				}
 			}
 			else
 			{
-				Console.WriteLine("Nincs ilyen termék");
+				Console.WriteLine("\tNincs ilyen termék");
 			}
 
 			//4. összes Cars-ra végződő tipusokat írja ki
-			Console.WriteLine("4. feladat");
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.WriteLine("\n4. feladat");
 			var cars = from p in products
 					   where p.type.EndsWith("Cars")
 					   select p;
@@ -138,23 +141,25 @@ namespace Classicmodels
 			{
 				foreach (var item in cars)
 				{
-					Console.WriteLine(item.name + " " + item.price + " " + item.type);
+					Console.WriteLine($"\t{item.name} | {item.price:#.00} | {item.type}");
 				}
 			}
 			else
 			{
-				Console.WriteLine("Nincs ilyen termék");
+				Console.WriteLine("\tNincs ilyen termék");
 			}
 
 			//5. legdrágább jármű adatai (1 db)
-			Console.WriteLine("5. feladat");
+			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.WriteLine("\n5. feladat");
 			var legtobb = (from sor in products
 						   orderby sor.price
 						   select sor).Last();
-			Console.WriteLine(legtobb.name + " ár: " + legtobb.price + "$ " + legtobb.type);
+			Console.WriteLine($"\tnév: {legtobb.name}\n\tár: {legtobb.price} $\n\ttípus: {legtobb.type}");
 
 			//6. legdrágább jármű adatai (több is lehet)
-			Console.WriteLine("6. feladat");
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("\n6. feladat");
 			double max = (from p in products
 						  select p.price).Max();
 
@@ -164,11 +169,12 @@ namespace Classicmodels
 
 			foreach (var item in legdragabbak)
 			{
-				Console.WriteLine(item.name + " ár: " + item.price + "$ " + item.type);
+				Console.WriteLine($"\tnév: {item.name}\n\tár: {item.price} $\n\ttípus: {item.type}");
 			}
 
 			//7. típusonként legdrágább ár
-			Console.WriteLine("7. feladat");
+			Console.ForegroundColor = ConsoleColor.Blue;
+			Console.WriteLine("\n7. feladat");
 			var legdragabbtipus = from sor in products
 								  group sor.price by sor.type;
 
@@ -176,21 +182,22 @@ namespace Classicmodels
 			{
 				Console.WriteLine($"\t{item.Key} - {item.Max()}");
 			}
+
 			//8. How many distinct products does ClassicModels sell?
-			Console.WriteLine("8. feladat");
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("\n8. feladat");
 			var dis = (from sor in products
 					   select sor.type).Distinct();
 
 			var dis_lambda = products.Select(x => x.type).Distinct();
 
-			Console.WriteLine(dis.Count());
-			Console.WriteLine(dis_lambda.Count());
+			Console.WriteLine($"\t{dis.Count()} terméktípus van:");
+			//Console.WriteLine($"\t{dis_lambda.Count()} terméktípus van");
 
 			foreach (var item in dis_lambda)
 			{
-				Console.WriteLine(item);
+				Console.WriteLine($"\t{item}");
 			}
-
 		}
 	}
 }
