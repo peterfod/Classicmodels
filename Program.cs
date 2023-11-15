@@ -23,6 +23,13 @@ namespace Classicmodels
 		public double price { get; set; }
 	}
 
+	class PaymentsTable
+	{
+		public int customerNumber { get; set; }
+		public string paymentDate { get; set; }
+		public double amount { get; set; }
+	}
+
 	class Program
 	{
 		static string connString = "server=localhost;database=classicmodels;uid=teszt;pwd=abc123";
@@ -34,9 +41,12 @@ namespace Classicmodels
 			conn.Open();
 			Console.WriteLine("Kapcsolat létrehozva!");
 
-			Employees();
-			Products();
+			//Employees();
+			//Products();
+			Payments();
 
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("\nPress any key to continue...");
 			Console.ReadKey();
 		}
 
@@ -197,6 +207,105 @@ namespace Classicmodels
 			foreach (var item in dis_lambda)
 			{
 				Console.WriteLine($"\t{item}");
+			}
+		}
+
+		static void Payments()
+		{
+			List<PaymentsTable> payments = new List<PaymentsTable>();
+			string query = "SELECT * FROM payments";
+			MySqlCommand command = new MySqlCommand(query, conn);
+			MySqlDataReader reader = command.ExecuteReader();
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			while (reader.Read())
+			{
+				var payment = new PaymentsTable
+				{
+					customerNumber = Convert.ToInt32(reader["customerNumber"]),
+					//paymentDate = Convert.ToString(reader["paymentDate"]),
+					paymentDate = Convert.ToDateTime(reader["paymentDate"]).ToString("yyyy-MM-dd"),
+					amount = Convert.ToDouble(reader["amount"])
+				};
+				payments.Add(payment);
+			}
+			reader.Close();
+
+			/*			Console.WriteLine("Payments Table:");
+						foreach (var item in payments)
+						{
+							Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount}");
+						}*/
+
+			//3. What is the total of payments received?
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.WriteLine("\n3. What is the total of payments received?");
+			var total = (from p in payments
+						 select p.amount).Sum();
+			Console.WriteLine($"\t{total}$");
+
+			//5. Report total payments for October 28, 2004.
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("\n5. Report total payments for October 28, 2004.");
+			var total_payments = (
+						from sor in payments
+						where sor.paymentDate == "2004-10-28"
+						select sor
+			);
+			foreach (var item in total_payments)
+			{
+				Console.WriteLine($"\t{item.customerNumber} | {item.amount}$");
+			}
+
+			//6. Report those payments greater than $100,000.
+			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.WriteLine("\n6. Report those payments greater than $100,000.");
+			var greater_than = (
+						from sor in payments
+						where sor.amount > 100000
+						select sor
+			);
+			foreach (var item in greater_than)
+			{
+				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount}$");
+			}
+
+			//9. What is the minimum payment received?
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			var min_payment = (
+				from sor in payments
+				orderby sor.amount
+				select sor.amount
+			).Min();
+			Console.WriteLine($"\n9. What is the minimum payment received?");
+			Console.WriteLine($"\t{min_payment}$");
+
+			//10. List all payments greater than twice the average payment.
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			Console.WriteLine($"\n10. List all payments greater than twice the average payment.");
+
+			/*var twice_payment = (
+				from sor in payments
+				select sor.amount
+			).Average() * 2;
+
+			var average = (
+				from sor in payments
+				where sor.amount > twice_payment
+				select sor
+			);*/
+
+			var average = (
+				from sor in payments
+				where sor.amount > (
+							from p in payments
+							select p.amount
+						).Average() * 2
+				select sor
+);
+
+			foreach (var item in average)
+			{
+				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount}$");
 			}
 		}
 	}
