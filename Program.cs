@@ -41,8 +41,8 @@ namespace Classicmodels
 			conn.Open();
 			Console.WriteLine("Kapcsolat létrehozva!");
 
-			//Employees();
-			//Products();
+			Employees();
+			Products();
 			Payments();
 
 			Console.ForegroundColor = ConsoleColor.Red;
@@ -222,7 +222,6 @@ namespace Classicmodels
 				var payment = new PaymentsTable
 				{
 					customerNumber = Convert.ToInt32(reader["customerNumber"]),
-					//paymentDate = Convert.ToString(reader["paymentDate"]),
 					paymentDate = Convert.ToDateTime(reader["paymentDate"]).ToString("yyyy-MM-dd"),
 					amount = Convert.ToDouble(reader["amount"])
 				};
@@ -241,7 +240,10 @@ namespace Classicmodels
 			Console.WriteLine("\n3. What is the total of payments received?");
 			var total = (from p in payments
 						 select p.amount).Sum();
-			Console.WriteLine($"\t{total}$");
+
+			//lambda-val:
+			var total_lambda = payments.Sum(x => x.amount);
+			Console.WriteLine($"\t{total_lambda}$");
 
 			//5. Report total payments for October 28, 2004.
 			Console.ForegroundColor = ConsoleColor.Yellow;
@@ -251,7 +253,11 @@ namespace Classicmodels
 						where sor.paymentDate == "2004-10-28"
 						select sor
 			);
-			foreach (var item in total_payments)
+
+			//lambda-val:
+			var total_payments_lambda = payments.Where(x => x.paymentDate == "2004-10-28");
+
+			foreach (var item in total_payments_lambda)
 			{
 				Console.WriteLine($"\t{item.customerNumber} | {item.amount}$");
 			}
@@ -264,35 +270,42 @@ namespace Classicmodels
 						where sor.amount > 100000
 						select sor
 			);
+
+			//lambda-val:
+			var greater_than_lambda = payments.Where(x => x.amount > 100000);
+
 			foreach (var item in greater_than)
 			{
-				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount}$");
+				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount:0.00}$");
 			}
 
 			//9. What is the minimum payment received?
 			Console.ForegroundColor = ConsoleColor.DarkYellow;
 			var min_payment = (
 				from sor in payments
-				orderby sor.amount
 				select sor.amount
 			).Min();
+
+			//lambda-val:
+			var min_payment_lambda = payments.Min(x => x.amount);
+
 			Console.WriteLine($"\n9. What is the minimum payment received?");
-			Console.WriteLine($"\t{min_payment}$");
+			Console.WriteLine($"\t{min_payment_lambda}$");
 
 			//10. List all payments greater than twice the average payment.
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.WriteLine($"\n10. List all payments greater than twice the average payment.");
 
-			/*var twice_payment = (
-				from sor in payments
-				select sor.amount
-			).Average() * 2;
+			/*            double twice_payment = (
+							from sor in payments
+							select sor.amount
+						).Average() * 2;
 
-			var average = (
-				from sor in payments
-				where sor.amount > twice_payment
-				select sor
-			);*/
+						var average = (
+							from sor in payments
+							where sor.amount > twice_payment
+							select sor
+						);*/
 
 			var average = (
 				from sor in payments
@@ -300,12 +313,15 @@ namespace Classicmodels
 							from p in payments
 							select p.amount
 						).Average() * 2
-				select sor
-);
+				select sor);
 
-			foreach (var item in average)
+			//lambda-val:
+			var twice_payment_lambda = payments.Average(x => x.amount) * 2;
+			var average_lambda = payments.Where(x => x.amount > twice_payment_lambda);
+
+			foreach (var item in average_lambda)
 			{
-				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount}$");
+				Console.WriteLine($"\t{item.customerNumber} | {item.paymentDate} | {item.amount:.00}$");
 			}
 		}
 	}
